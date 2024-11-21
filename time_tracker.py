@@ -1,26 +1,17 @@
+import csv
 import json
+import pandas as pd
 from time import sleep
 from datetime import datetime
 from psutil import process_iter
 from os.path import dirname, abspath, join, exists
 
-#################################################
-#   This is a simple time tracker to monitor    #
-#   how much time I spend playing video games   #
-#   during the day.                             #
-#                                               #
-#   Setup:                                      #
-#   1. set REPORT_FILE variable                 #
-#   2. set TARGET_PROCESSES variable            #
-#   3. set TIME_INTERVAL_IN_SECONDS variable    #
-#   4. pip install psutil                       #
-#   5. python time_tracker.py                   #
-#################################################
-
 TIME_INTERVAL_IN_SECONDS = 5
-REPORT_FILE = join(dirname(abspath(__file__)), "time_report.json")
+REPORT_CSV = join(dirname(abspath(__file__)), "report.csv")
+REPORT_JSON = join(dirname(abspath(__file__)), "daily.json")
 TARGET_PROCESSES = [
     {"exe": "TslGame.exe", "name": "PUBG"},
+    {"exe": "Telegram.exe", "name": "Telegram"},
     {"exe": "SC2_x64.exe", "name": "StarCraft II"},
     {"exe": "RainbowSix.exe", "name": "Rainbow Six Siege"},
     {"exe": "SHProto-Win64-Shipping.exe", "name": "Silent Hill 2"},
@@ -48,22 +39,46 @@ def log_message(process):
     print(f"{now()} [ {name} ] {hours:02d}:{minutes:02d}:{seconds:02d} ")
 
 
-def write_to_file(seconds: int = 0):
+def update_json_stats(seconds: int = 0):
     hours = int(seconds // 3600)
     minutes = int((seconds % 3600) // 60)
     seconds = int(seconds % 60)
 
-    with open(REPORT_FILE, "w", encoding="utf-8") as file:
+    with open(REPORT_JSON, "w", encoding="utf-8") as file:
         data = {today(): {"hour(s)": hours, "minute(s)": minutes, "second(s)": seconds}}
         json.dump(data, file, indent=4)
 
 
+def update_csv_stats(hours, minutes):
+    if not exists(REPORT_CSV):
+        rows = [
+            ["date", "hours", "minutes"],
+            [today(), hours, minutes],
+        ]
+    else:
+        with open(REPORT_CSV, mode="r", newline="") as file:
+            rows = []
+            for row in csv.reader(file):
+                if row[0] == today():
+                    rows.append([today(), hours, minutes])
+                else:
+                    rows.append(row)
+
+        data = pd.read_csv(REPORT_CSV)
+        if today() not in data.iloc[:, 0].values:
+            rows.append([today(), hours, minutes])
+
+    with open(REPORT_CSV, mode="w", newline="") as file:
+        writer = csv.writer(file)
+        writer.writerows(rows)
+
+
 def write_summary():
-    if exists(REPORT_FILE):
-        with open(REPORT_FILE, "r") as file:
+    if exists(REPORT_JSON):
+        with open(REPORT_JSON, "r") as file:
             data = json.load(file)
             if not today() in data:
-                write_to_file()
+                update_json_stats()
             else:
                 time_counter = data[today()]
                 seconds = (
@@ -71,9 +86,10 @@ def write_summary():
                     + time_counter["minute(s)"] * 60
                     + time_counter["second(s)"]
                 )
-                write_to_file(seconds + TIME_INTERVAL_IN_SECONDS)
+                update_json_stats(seconds + TIME_INTERVAL_IN_SECONDS)
+                update_csv_stats(time_counter["hour(s)"], time_counter["minute(s)"])
     else:
-        write_to_file()
+        update_json_stats()
 
 
 def active_processes(targets):
