@@ -17,10 +17,11 @@ from os.path import dirname, abspath, join, exists
 #   5. python time_tracker.py                   #
 #################################################
 
-TIME_INTERVAL_IN_SECONDS = 60
+TIME_INTERVAL_IN_SECONDS = 5
 REPORT_FILE = join(dirname(abspath(__file__)), "time_report.json")
 TARGET_PROCESSES = [
     {"exe": "TslGame.exe", "name": "PUBG"},
+    {"exe": "Telegram.exe", "name": "Telegram"},
     {"exe": "SC2_x64.exe", "name": "StarCraft II"},
     {"exe": "RainbowSix.exe", "name": "Rainbow Six Siege"},
     {"exe": "SHProto-Win64-Shipping.exe", "name": "Silent Hill 2"},
@@ -89,7 +90,9 @@ def active_processes(targets):
 
 if __name__ == "__main__":
     while True:
-        for process in active_processes(TARGET_PROCESSES):
+        processes = active_processes(TARGET_PROCESSES)
+        for process in processes:
             log_message(process)
-        write_summary()
+        if len(processes):
+            write_summary()
         sleep(TIME_INTERVAL_IN_SECONDS)
