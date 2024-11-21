@@ -11,7 +11,6 @@ REPORT_CSV = join(dirname(abspath(__file__)), "report.csv")
 REPORT_JSON = join(dirname(abspath(__file__)), "daily.json")
 TARGET_PROCESSES = [
     {"exe": "TslGame.exe", "name": "PUBG"},
-    {"exe": "Telegram.exe", "name": "Telegram"},
     {"exe": "SC2_x64.exe", "name": "StarCraft II"},
     {"exe": "RainbowSix.exe", "name": "Rainbow Six Siege"},
     {"exe": "SHProto-Win64-Shipping.exe", "name": "Silent Hill 2"},
