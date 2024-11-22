@@ -87,7 +87,6 @@ def write_summary():
                     + time_counter["second(s)"]
                 )
                 update_json_stats(seconds + TIME_INTERVAL_IN_SECONDS)
-                # update_csv_stats(time_counter["hour(s)"], time_counter["minute(s)"])
                 with ThreadPoolExecutor() as executor:
                     executor.submit(lambda : update_csv_stats(time_counter["hour(s)"], time_counter["minute(s)"]))
     else:
