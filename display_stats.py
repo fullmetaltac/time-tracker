@@ -5,26 +5,17 @@ from os.path import dirname, abspath, join
 REPORT_FILE = join(dirname(abspath(__file__)), "report.csv")
 
 data = pd.read_csv(REPORT_FILE)
-
 data['date'] = pd.to_datetime(data['date'])
-
 data['decimal_hours'] = data['hours'] + data['minutes'] / 60
 
-def format_hours_minutes(value):
-    hours = int(value)
-    minutes = int((value - hours) * 60)
-    return f"{hours}h {minutes}m"
+plt.figure(figsize=(12, 6))
+plt.bar(data['date'], data['decimal_hours'], color='skyblue', edgecolor='black', alpha=0.7)
 
-plt.figure(figsize=(10, 6))
-plt.plot(data['date'], data['decimal_hours'], marker='o', linestyle='-', color='b', label='Time Spent')
+plt.title('Date vs Time Spent (Hours and Minutes)', fontsize=14)
+plt.xlabel('Date', fontsize=12)
+plt.ylabel('Time Spent (Hours)', fontsize=12)
+plt.xticks(rotation=45, ha='right')
+plt.grid(axis='y', linestyle='--', alpha=0.7)
 
-plt.gca().yaxis.set_major_formatter(plt.FuncFormatter(lambda x, _: format_hours_minutes(x)))
-
-plt.title('Date vs Time Spent (Hours and Minutes)')
-plt.xlabel('Date')
-plt.ylabel('Time (Hours and Minutes)')
-plt.grid(True)
-plt.legend()
 plt.tight_layout()
-
 plt.show()
