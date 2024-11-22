@@ -6,7 +6,7 @@ from datetime import datetime
 from psutil import process_iter
 from os.path import dirname, abspath, join, exists
 
-TIME_INTERVAL_IN_SECONDS = 5
+TIME_INTERVAL_IN_SECONDS = 60
 REPORT_CSV = join(dirname(abspath(__file__)), "report.csv")
 REPORT_JSON = join(dirname(abspath(__file__)), "daily.json")
 TARGET_PROCESSES = [
